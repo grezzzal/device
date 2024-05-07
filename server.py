@@ -1,18 +1,16 @@
-import socket
+import socket, random
 
 target = {'T1' : '30', 'T2' : '30', 'T3' : '30', 'CPU' : '10', 'RAM' : '10', 'ROM' : '10'}
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('', 55030))
-sock.listen(1)
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(('192.168.1.108', 55030))
 print('Server is running')
 while True:
-    conn, addr = sock.accept()
-    print('connected:', addr)
-    data = conn.recv(1024)
+    data, addr = sock.recvfrom(1024)
+    print(f'Received a message from {addr}:{data.decode()} ')
     data = str(data.upper().decode("utf-8"))
     if target.get(data):
-        conn.send(target[data].encode())
+        sock.sendto(target[data].encode("utf-8"), addr)
     else:
-        conn.send('Error'.encode())
-conn.close() 
+        sock.sendto('Error'.encode("utf-8"), addr)
+conn.close()
